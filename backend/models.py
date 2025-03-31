@@ -13,7 +13,6 @@ class Issuers(db.Model):
 class Accounts(db.Model):
     address = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(255), nullable=False, unique=True)
-    salt = db.Column(db.String(255))
     passhash = db.Column(db.String(255))
     role = db.Column(db.String(1))
 
