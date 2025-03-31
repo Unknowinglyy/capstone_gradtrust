@@ -35,7 +35,6 @@ def create():
         new_account = Accounts(
             username=username,
             address=address,
-            salt=salt,
             passhash=passhash,
             role='I'  #default role of issuer
         )
