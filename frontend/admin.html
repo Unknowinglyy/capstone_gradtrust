@@ -139,6 +139,61 @@
             }
         };
     </script>
+
+    <form id="viewAccounts">
+        <button type="submit">View accounts</button>
+    </form>
+
+    <div id="accountResult"></div>
+    <script>
+        document.getElementById('viewAccounts').onsubmit = async (e) => {
+            e.preventDefault();
+            const resultDiv = document.getElementById('accountResult');
+            const button = e.target.querySelector('button');
+
+            try{
+                //button should be disabled during transaction
+                button.disabled = true;
+                button.textContent = 'Loading...';
+
+                //make the GET request 
+                const response = await fetch('http://localhost:5000/api/admin/view-accounts', {
+                    method: 'GET',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+
+                if(!response.ok){
+                    throw new Error(`HTTP error! status: ${response.status}` );
+                }
+
+                const accounts = await response.json();
+
+                if(accounts.length > 0){
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Accounts Retrieved Successfully!</h3>
+                        <ul>
+                            ${accounts.map(account => `<li>Address: ${account.address}, Username: ${account.username}, Role: ${account.role}}</li>`).join('')}
+                        </ul>
+                    `;
+                } else {
+                    resultDiv.className = 'warning';
+                    resultDiv.innerHTML = `<p>No accounts found.</p>`;
+                }
+            } catch(error){
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+            } finally {
+                // Re-enable button after transaction
+                button.disabled = false;
+                button.textContent = 'View accounts';
+            }
+        };
+    </script>
+
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
+from backend.models import db
 from flask_cors import CORS
 from backend.routes import blueprints
 import os
@@ -7,8 +7,6 @@ import dotenv
 
 dotenv.load_dotenv()
 CONNECTION_STRING = os.getenv('CONNECTION_STRING')
-
-db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__, template_folder="../frontend/")

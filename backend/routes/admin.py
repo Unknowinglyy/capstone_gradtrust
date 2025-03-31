@@ -1,8 +1,9 @@
 from backend.routes import admin_bp
-from flask import jsonify
-from web3 import Web3
 from backend.classes.issue_verification import IssuerVerification
 from backend.config import w3, issuer_registry, PRIVATE_KEY
+from backend.models import Accounts
+from flask import jsonify
+from web3 import Web3
 import os
 import json
 
@@ -62,4 +63,21 @@ def update_merkle_root():
             
     except Exception as e:
         print(f"Error in update_merkle_root: {str(e)}")  # Add logging
+        return jsonify({'error': str(e)}), 500
+    
+@admin_bp.route('/view-accounts', methods=['GET'])
+def view_accounts():
+    """View all accounts currently in the database (Admin only)"""
+    try:
+        all_accounts = Accounts.query.all()
+        account_list = []
+        for account in all_accounts:
+            account_list.append({
+                'address': account.address,
+                'username': account.username,
+                'role': account.role,
+            })
+        return jsonify(account_list), 200
+    except Exception as e:
+        print(f"Error in view_accounts: {str(e)}")
         return jsonify({'error': str(e)}), 500
