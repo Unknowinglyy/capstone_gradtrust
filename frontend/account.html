@@ -13,11 +13,12 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 80vh;
+            height: 100vh;
             background-color: #f4f4f9;
         }
         .form-container{
             margin-bottom: 1vh;
+            text-align: center;
             margin-top: 1vh;
         }
         form {
@@ -51,22 +52,39 @@
     </style>
 </head>
 <body>
-    <form id="createAccount" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+    <div class="form-container">
+        <h2>Create an Account</h2>
+        <form id="createAccount" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
 
+            <label for="address">Wallet Address:</label>
+            <input type="text" id="address" name="address" required>
+
+            <label for="password">Password:</label>
+            <input type="text" id="password" name="password" required>
+
+            <input type="submit" value="Create Account">
+        </form>
+    <div id="createResult"></div>
+</div>
+
+<div class="form-container">
+    <h2>Verify an Account</h2>
+    <form id="checkAccount" method="POST">
         <label for="address">Wallet Address:</label>
-        <input type="text" id="address" name="address" required>
+        <input type="text" id="checkAddress" name="address" required>
 
         <label for="password">Password:</label>
-        <input type="text" id="password" name="password" required>
+        <input type="text" id="checkPassword" name="password" required>
 
-        <input type="submit" value="Create Account">
+        <input type="submit" value="Check Account">
     </form>
+    <div id="checkResult"></div>
+</div>
 
-    <div id="createResult"></div>
 
-    <script>
+<script>
     document.getElementById('createAccount').onsubmit = async (e) => {
     e.preventDefault();
     const resultDiv = document.getElementById('createResult');
@@ -101,55 +119,42 @@
         submitButton.value = 'Create Account';
     }
 };
-    </script>
 
-    <form id="checkAccount" method="POST">
-        <label for="address">Wallet Address:</label>
-        <input type="text" id="checkAddress" name="address" required>
+document.getElementById('checkAccount').onsubmit = async (e) => {
+        e.preventDefault();
+        const resultDiv = document.getElementById('checkResult');
+        const submitButton = e.target.querySelector('input[type="submit"]'); // Correctly reference the submit button
 
-        <label for="password">Password:</label>
-        <input type="text" id="checkPassword" name="password" required>
+        try {
+            // Disable the button during the transaction
+            submitButton.disabled = true;
+            submitButton.value = 'Checking Account...';
 
-        <input type="submit" value="Check Account">
-    </form>
+            const response = await fetch('http://localhost:5000/api/login/check', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address: document.getElementById('checkAddress').value,
+                    password: document.getElementById('checkPassword').value,
+                }),
+            });
+            const result = await response.json();
 
-    <div id="checkResult"></div>
-    <script>
-    document.getElementById('checkAccount').onsubmit = async (e) => {
-    e.preventDefault();
-    const resultDiv = document.getElementById('checkResult');
-    const submitButton = e.target.querySelector('input[type="submit"]'); // Correctly reference the submit button
-
-    try {
-        // Disable the button during the transaction
-        submitButton.disabled = true;
-        submitButton.value = 'Checking Account...';
-
-        const response = await fetch('http://localhost:5000/api/login/check', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                address: document.getElementById('checkAddress').value,
-                password: document.getElementById('checkPassword').value,
-            }),
-        });
-        const result = await response.json();
-
-        if (response.ok) {
-            resultDiv.innerHTML = `<div class="success">Account exists!`;
-        } else {
-            resultDiv.innerHTML = `<div class="error">Error: ${result.error || 'Unknown error'}</div>`;
+            if (response.ok) {
+                resultDiv.innerHTML = `<div class="success">Account exists!`;
+            } else {
+                resultDiv.innerHTML = `<div class="error">Error: ${result.error || 'Unknown error'}</div>`;
+            }
+        } catch (error) {
+            resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        } finally {
+            // Re-enable the button after the transaction
+            submitButton.disabled = false;
+            submitButton.value = 'Check Account';
         }
-    } catch (error) {
-        resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
-    } finally {
-        // Re-enable the button after the transaction
-        submitButton.disabled = false;
-        submitButton.value = 'Check Account';
-    }
-};
-    </script>
+    }; 
+</script>
 </body>
 </html>
