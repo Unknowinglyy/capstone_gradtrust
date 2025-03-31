@@ -33,6 +33,10 @@ def create_app():
     @app.route("/view-credentials")
     def view_credentials():
         return render_template("view-credentials.html")
+    
+    @app.route("/accounts")
+    def login():
+        return render_template("account.html")
 
     return app
 

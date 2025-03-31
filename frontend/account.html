@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+            background-color: #f4f4f9;
+        }
+        .form-container{
+            margin-bottom: 1vh;
+            margin-top: 1vh;
+        }
+        form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <form id="createAccount" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="address">Wallet Address:</label>
+        <input type="text" id="address" name="address" required>
+
+        <label for="password">Password:</label>
+        <input type="text" id="password" name="password" required>
+
+        <input type="submit" value="Create Account">
+    </form>
+
+    <div id="createResult"></div>
+
+    <script>
+    document.getElementById('createAccount').onsubmit = async (e) => {
+    e.preventDefault();
+    const resultDiv = document.getElementById('createResult');
+    const submitButton = e.target.querySelector('input[type="submit"]'); 
+
+    try {
+        submitButton.disabled = true;
+        submitButton.value = 'Creating Account...';
+
+        const response = await fetch('http://localhost:5000/api/login/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: document.getElementById('username').value,
+                address: document.getElementById('address').value,
+                password: document.getElementById('password').value,
+            }),
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            resultDiv.innerHTML = `<div class="success">Account created successfully!`;
+        } else {
+            resultDiv.innerHTML = `<div class="error">Error: ${result.error || 'Unknown error'}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+    } finally {
+        submitButton.disabled = false;
+        submitButton.value = 'Create Account';
+    }
+};
+    </script>
+
+    <form id="checkAccount" method="POST">
+        <label for="address">Wallet Address:</label>
+        <input type="text" id="checkAddress" name="address" required>
+
+        <label for="password">Password:</label>
+        <input type="text" id="checkPassword" name="password" required>
+
+        <input type="submit" value="Check Account">
+    </form>
+
+    <div id="checkResult"></div>
+    <script>
+    document.getElementById('checkAccount').onsubmit = async (e) => {
+    e.preventDefault();
+    const resultDiv = document.getElementById('checkResult');
+    const submitButton = e.target.querySelector('input[type="submit"]'); // Correctly reference the submit button
+
+    try {
+        // Disable the button during the transaction
+        submitButton.disabled = true;
+        submitButton.value = 'Checking Account...';
+
+        const response = await fetch('http://localhost:5000/api/login/check', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                address: document.getElementById('checkAddress').value,
+                password: document.getElementById('checkPassword').value,
+            }),
+        });
+        const result = await response.json();
+
+        if (response.ok) {
+            resultDiv.innerHTML = `<div class="success">Account exists!`;
+        } else {
+            resultDiv.innerHTML = `<div class="error">Error: ${result.error || 'Unknown error'}</div>`;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+    } finally {
+        // Re-enable the button after the transaction
+        submitButton.disabled = false;
+        submitButton.value = 'Check Account';
+    }
+};
+    </script>
+</body>
+</html>
